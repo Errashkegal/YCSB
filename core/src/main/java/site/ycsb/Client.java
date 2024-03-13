@@ -418,10 +418,14 @@ public final class Client {
           opcount = Long.parseLong(props.getProperty(RECORD_COUNT_PROPERTY, DEFAULT_RECORD_COUNT));
         }
       }
-      if (threadcount > opcount && opcount > 0){
+      if (threadcount > opcount && opcount > Integer.MAX_VALUE){
+        threadcount = Integer.MAX_VALUE;
+        System.out.println("Warning: the threadcount is bigger than recordcount, the threadcount will be " + Integer.MAX_VALUE + " !");
+      else if(threadcount > opcount && opcount > 0 && opcount <= Integer.MAX_VALUE){
         threadcount = opcount;
         System.out.println("Warning: the threadcount is bigger than recordcount, the threadcount will be recordcount!");
       }
+        
       for (int threadid = 0; threadid < threadcount; threadid++) {
         DB db;
         try {
