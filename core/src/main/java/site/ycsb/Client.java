@@ -283,7 +283,7 @@ public final class Client {
     long maxExecutionTime = Integer.parseInt(props.getProperty(MAX_EXECUTION_TIME, "0"));
 
     //get number of threads, target and db
-    int threadcount = Integer.parseInt(props.getProperty(THREAD_COUNT_PROPERTY, "1"));
+    long threadcount = Long.parseLong(props.getProperty(THREAD_COUNT_PROPERTY, "1"));
     String dbname = props.getProperty(DB_PROPERTY, "site.ycsb.BasicDB");
     int target = Integer.parseInt(props.getProperty(TARGET_PROPERTY, "0"));
 
@@ -432,7 +432,7 @@ public final class Client {
           break;
         }
 
-        int threadopcount = opcount / threadcount;
+        long threadopcount = opcount / threadcount;
 
         // ensure correct number of operations, in case opcount is not a multiple of threadcount
         if (threadid < opcount % threadcount) {
