@@ -283,7 +283,7 @@ public final class Client {
     long maxExecutionTime = Integer.parseInt(props.getProperty(MAX_EXECUTION_TIME, "0"));
 
     //get number of threads, target and db
-    long threadcount = Long.parseLong(props.getProperty(THREAD_COUNT_PROPERTY, "1"));
+    int threadcount = Int.parseInt(props.getProperty(THREAD_COUNT_PROPERTY, "1"));
     String dbname = props.getProperty(DB_PROPERTY, "site.ycsb.BasicDB");
     int target = Integer.parseInt(props.getProperty(TARGET_PROPERTY, "0"));
 
