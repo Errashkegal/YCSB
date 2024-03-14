@@ -408,20 +408,24 @@ public final class Client {
 
     final List<ClientThread> clients = new ArrayList<>(threadcount);
     try (final TraceScope span = tracer.newScope(CLIENT_INIT_SPAN)) {
-      int opcount;
+      Long opcount;
       if (dotransactions) {
-        opcount = Integer.parseInt(props.getProperty(OPERATION_COUNT_PROPERTY, "0"));
+        opcount = Long.parseLong(props.getProperty(OPERATION_COUNT_PROPERTY, "0"));
       } else {
         if (props.containsKey(INSERT_COUNT_PROPERTY)) {
-          opcount = Integer.parseInt(props.getProperty(INSERT_COUNT_PROPERTY, "0"));
+          opcount = Long.parseLong(props.getProperty(INSERT_COUNT_PROPERTY, "0"));
         } else {
-          opcount = Integer.parseInt(props.getProperty(RECORD_COUNT_PROPERTY, DEFAULT_RECORD_COUNT));
+          opcount = Long.parseLong(props.getProperty(RECORD_COUNT_PROPERTY, DEFAULT_RECORD_COUNT));
         }
       }
-      if (threadcount > opcount && opcount > 0){
-        threadcount = opcount;
+      if (threadcount > opcount && opcount > Integer.MAX_VALUE){
+        threadcount = Integer.MAX_VALUE;
+        System.out.println("Warning: the threadcount is bigger than recordcount, the threadcount will be MaxInt !");
+      } else if(threadcount > opcount && opcount > 0 && opcount <= Integer.MAX_VALUE){
+        threadcount = opcount.intValue();
         System.out.println("Warning: the threadcount is bigger than recordcount, the threadcount will be recordcount!");
       }
+        
       for (int threadid = 0; threadid < threadcount; threadid++) {
         DB db;
         try {
@@ -432,14 +436,19 @@ public final class Client {
           break;
         }
 
-        int threadopcount = opcount / threadcount;
+        Long threadopcount = opcount / threadcount;
+        if(threadopcount > Integer.MAX_VALUE){
+          threadcount = Integer.MAX_VALUE;
+          System.out.println("WARNING: Threadcount will be reduced to MAX_INT.");
+        }
 
         // ensure correct number of operations, in case opcount is not a multiple of threadcount
         if (threadid < opcount % threadcount) {
           ++threadopcount;
         }
 
-        ClientThread t = new ClientThread(db, dotransactions, workload, props, threadopcount, targetperthreadperms,
+        ClientThread t = new ClientThread(db, dotransactions, workload, props, threadopcount.intValue(), 
+            targetperthreadperms,
             completeLatch);
         t.setThreadId(threadid);
         t.setThreadCount(threadcount);
